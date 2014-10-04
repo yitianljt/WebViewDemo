@@ -1,6 +1,12 @@
 #include "HelloWorldScene.h"
+#include "Device_ios.h"
 
 USING_NS_CC;
+
+enum {
+    kBtnBaiduTag,
+    kBtnYoukuTag
+};
 
 Scene* HelloWorld::createScene()
 {
@@ -35,49 +41,44 @@ bool HelloWorld::init()
     //    you may modify it.
 
     // add a "close" icon to exit the progress. it's an autorelease object
-    auto closeItem = MenuItemImage::create(
-                                           "CloseNormal.png",
-                                           "CloseSelected.png",
-                                           CC_CALLBACK_1(HelloWorld::menuCloseCallback, this));
-    
-	closeItem->setPosition(Vec2(origin.x + visibleSize.width - closeItem->getContentSize().width/2 ,
-                                origin.y + closeItem->getContentSize().height/2));
+    auto labelBd = LabelTTF::create("百度一下", "Arial", 24);
+    auto itemBaidu = MenuItemLabel::create(labelBd,CC_CALLBACK_1(HelloWorld::menuCallback, this));
+    itemBaidu->setTag(kBtnBaiduTag);
 
+    auto labelYK = LabelTTF::create("优酷", "Arial", 24);
+    auto itemYK = MenuItemLabel::create(labelYK,CC_CALLBACK_1(HelloWorld::menuCallback, this));
+    itemYK->setTag(kBtnYoukuTag);
+    
     // create menu, it's an autorelease object
-    auto menu = Menu::create(closeItem, NULL);
-    menu->setPosition(Vec2::ZERO);
+    auto menu = Menu::create(itemBaidu,itemYK, NULL);
+    menu->alignItemsVertically();
+    menu->setPosition(Size(visibleSize.width/2,visibleSize.height/2));
     this->addChild(menu, 1);
 
-    /////////////////////////////
-    // 3. add your codes below...
 
-    // add a label shows "Hello World"
-    // create and initialize a label
-    
-    auto label = LabelTTF::create("Hello World", "Arial", 24);
-    
-    // position the label on the center of the screen
-    label->setPosition(Vec2(origin.x + visibleSize.width/2,
-                            origin.y + visibleSize.height - label->getContentSize().height));
-
-    // add the label as a child to this layer
-    this->addChild(label, 1);
-
-    // add "HelloWorld" splash screen"
-    auto sprite = Sprite::create("HelloWorld.png");
-
-    // position the sprite on the center of the screen
-    sprite->setPosition(Vec2(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
-
-    // add the sprite as a child to this layer
-    this->addChild(sprite, 0);
     
     return true;
 }
 
 
-void HelloWorld::menuCloseCallback(Ref* pSender)
+void HelloWorld::menuCallback(Ref* pSender)
 {
+    Node* node = (Node*)pSender;
+    switch (node->getTag()) {
+        case kBtnBaiduTag:
+            showWebView("http://www.baidu.com");
+            break;
+        case kBtnYoukuTag:
+            showWebView("http://www.youku.com");
+
+            break;
+
+            
+        default:
+            break;
+    }
+    
+    return ;
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WP8) || (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
 	MessageBox("You pressed the close button. Windows Store Apps do not implement a close button.","Alert");
     return;
